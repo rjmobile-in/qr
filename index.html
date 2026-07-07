@@ -79,22 +79,11 @@
             height: 55mm; 
         }
         
-        /* Top section: Logo and Name */
-        .logo {
-            width: 48px; 
-            height: 48px;
-            border-radius: 50%;
-            background-color: white;
-            object-fit: contain;
-            border: 1.5px solid #e2e8f0; 
-            margin-bottom: 6px;
-            flex-shrink: 0;
-        }
         .name { 
             font-weight: 800; 
-            font-size: 13px; 
+            font-size: 14px; /* Slightly bumped up since logo is gone */
             text-align: center;
-            margin-bottom: 8px;
+            margin-bottom: 12px;
             flex-shrink: 0;
             letter-spacing: -0.3px;
         }
@@ -170,25 +159,17 @@
         ];
 
         const socialUrl = "https://rjmobile-in.github.io/social?staff=";
-        
-        // Ensure your logo file is named logo.png and is in the same folder
-        const logoUrl = "logo.png";
 
         const grid = document.getElementById("qr-grid");
 
         staffNames.forEach(name => {
             const card = document.createElement("div");
             card.className = "card";
-
-            const logo = document.createElement("img");
-            logo.className = "logo";
-            logo.src = logoUrl;
             
             const nameLabel = document.createElement("div");
             nameLabel.className = "name";
             nameLabel.innerText = name; // Display name with spaces intact
             
-            card.appendChild(logo);
             card.appendChild(nameLabel);
 
             const qrsContainer = document.createElement("div");
