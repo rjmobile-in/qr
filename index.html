@@ -69,23 +69,26 @@
             align-items: center;
             justify-content: center;
             border: 1.5px dashed #000; /* Scissor cut line */
-            padding: 10px 4px;
+            padding: 8px 4px;
             page-break-inside: avoid; /* Prevents cards from splitting across 2 pages */
             background: #ffffff; 
             color: #000000; 
             border-radius: 4px; 
             box-sizing: border-box;
             width: 100%;
-            height: 55mm; 
+            height: 55mm; /* Retains the length > width ratio */
         }
         
         .name { 
             font-weight: 800; 
-            font-size: 14px; /* Slightly bumped up since logo is gone */
+            font-size: 17px; /* Increased to make it larger and more readable */
+            line-height: 1.15;
             text-align: center;
-            margin-bottom: 12px;
+            margin-bottom: 6px; /* Slightly reduced so the QR has more room */
             flex-shrink: 0;
             letter-spacing: -0.3px;
+            width: 100%;
+            overflow-wrap: break-word; /* Ensures long names like 'Krishna Choubey' fit */
         }
         
         /* QR Section */
@@ -110,9 +113,11 @@
             align-items: center;
         }
         
+        /* HIGH QUALITY PRINT HACK:
+           Scaled up from 90px to 120px to perfectly fill the width of the box */
         .qr-code-wrapper img, .qr-code-wrapper canvas {
-            width: 90px !important;
-            height: 90px !important;
+            width: 120px !important;
+            height: 120px !important;
         }
 
         /* Optimize styling strictly for PDF export/print */
@@ -191,6 +196,7 @@
             const linkName = name.replace(/\s+/g, '-');
 
             // Generate extremely high-resolution QR Code for crisp PDF saving
+            // Kept 400x400 internally for ultra-sharp print density
             new QRCode(qrWrapSocial, {
                 text: socialUrl + encodeURIComponent(linkName),
                 width: 400,  
