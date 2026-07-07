@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Compact White Staff ID QR Stickers</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        /* Setup page for A4 Print */
+        @page {
+            size: A4;
+            margin: 10mm;
+        }
+        body { 
+            font-family: 'Segoe UI', Arial, sans-serif; 
+            margin: 0; 
+            background: #ffffff;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr); /* 5 columns to fit 30 on one page */
+            gap: 6px; 
+            max-width: 100%;
+            margin: 0 auto;
+        }
+        .card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 1.5px dashed #000; /* Scissor cut line */
+            padding: 8px 4px;
+            page-break-inside: avoid;
+            background: #ffffff; /* Clean white background */
+            color: #000000; /* Black text for contrast */
+            border-radius: 4px; 
+            /* Height is set to auto so it wraps tightly around the content */
+            height: auto; 
+            box-sizing: border-box;
+        }
+        /* Top section: Logo and Name */
+        .logo {
+            width: 26px; 
+            height: 26px;
+            border-radius: 50%;
+            background-color: white;
+            object-fit: contain;
+            border: 1px solid #ccc; /* Light gray border around logo */
+            margin-bottom: 4px;
+            flex-shrink: 0;
+        }
+        .name { 
+            font-weight: 700; 
+            font-size: 11px; 
+            text-align: center;
+            margin-bottom: 8px;
+            flex-shrink: 0;
+        }
+        /* Vertical QR Section */
+        .qrs-container {
+            display: flex;
+            flex-direction: column; 
+            gap: 6px; 
+            width: 100%;
+            align-items: center;
+        }
+        .qr-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex-shrink: 0; 
+        }
+        .qr-code-wrapper {
+            background: white; 
+            padding: 2px;
+            flex-shrink: 0;
+        }
+        .qr-label {
+            font-size: 7.5px;
+            font-weight: bold;
+            text-align: center;
+            text-transform: uppercase;
+            margin-top: 2px;
+        }
+        /* Optimize for print */
+        @media print {
+            body { padding: 0; }
+            .grid { gap: 6px; }
+            .card { border: 1.5px dashed #000; }
+        }
+    </style>
+</head>
+<body>
+    <div class="grid" id="qr-grid"></div>
+
+    <script>
+        const staffNames = [];
+        for (let i = 1; i <= 30; i++) {
+            staffNames.push("Name " + i);
+        }
+
+        const socialUrl = "https://rjmobile-in.github.io/social?staff=";
+        const murlipuraUrl = "https://rjmobile-in.github.io/murlipura?staff=";
+        
+        // Ensure your logo file is named logo.png and is in the same folder
+        const logoUrl = "logo.png";
+
+        const grid = document.getElementById("qr-grid");
+
+        staffNames.forEach(name => {
+            const card = document.createElement("div");
+            card.className = "card";
+
+            const logo = document.createElement("img");
+            logo.className = "logo";
+            logo.src = logoUrl;
+            
+            const nameLabel = document.createElement("div");
+            nameLabel.className = "name";
+            nameLabel.innerText = name;
+            
+            card.appendChild(logo);
+            card.appendChild(nameLabel);
+
+            const qrsContainer = document.createElement("div");
+            qrsContainer.className = "qrs-container";
+
+            // --- QR 1: Social Media ---
+            const qrBoxSocial = document.createElement("div");
+            qrBoxSocial.className = "qr-box";
+            
+            const qrWrapSocial = document.createElement("div");
+            qrWrapSocial.className = "qr-code-wrapper";
+            
+            const labelSocial = document.createElement("div");
+            labelSocial.className = "qr-label";
+            labelSocial.innerText = "Social Media";
+
+            qrBoxSocial.appendChild(qrWrapSocial);
+            qrBoxSocial.appendChild(labelSocial);
+            qrsContainer.appendChild(qrBoxSocial);
+
+            // --- QR 2: Google Review (Murlipura) ---
+            const qrBoxGoogle = document.createElement("div");
+            qrBoxGoogle.className = "qr-box";
+            
+            const qrWrapGoogle = document.createElement("div");
+            qrWrapGoogle.className = "qr-code-wrapper";
+            
+            const labelGoogle = document.createElement("div");
+            labelGoogle.className = "qr-label";
+            labelGoogle.innerText = "Google Review";
+
+            qrBoxGoogle.appendChild(qrWrapGoogle);
+            qrBoxGoogle.appendChild(labelGoogle);
+            qrsContainer.appendChild(qrBoxGoogle);
+
+            card.appendChild(qrsContainer);
+            grid.appendChild(card);
+
+            // Generate QR Code: Social
+            new QRCode(qrWrapSocial, {
+                text: socialUrl + encodeURIComponent(name),
+                width: 40,  // Compact size for white background
+                height: 40, 
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.L
+            });
+
+            // Generate QR Code: Google Review (Murlipura)
+            new QRCode(qrWrapGoogle, {
+                text: murlipuraUrl + encodeURIComponent(name),
+                width: 40, // Compact size for white background
+                height: 40, 
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.L
+            });
+        });
+    </script>
+</body>
+</html>
