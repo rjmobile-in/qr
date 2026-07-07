@@ -1,183 +1,561 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>Compact White Staff ID QR Stickers</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <style>
-        /* Setup page for A4 Print */
-        @page {
-            size: A4;
-            margin: 10mm;
-        }
-        body { 
-            font-family: 'Segoe UI', Arial, sans-serif; 
-            margin: 0; 
-            background: #ffffff;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
-        }
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr); /* 5 columns to fit 30 on one page */
-            gap: 6px; 
-            max-width: 100%;
-            margin: 0 auto;
-        }
-        .card {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            border: 1.5px dashed #000; /* Scissor cut line */
-            padding: 8px 4px;
-            page-break-inside: avoid;
-            background: #ffffff; /* Clean white background */
-            color: #000000; /* Black text for contrast */
-            border-radius: 4px; 
-            /* Height is set to auto so it wraps tightly around the content */
-            height: auto; 
-            box-sizing: border-box;
-        }
-        /* Top section: Logo and Name */
-        .logo {
-            width: 26px; 
-            height: 26px;
-            border-radius: 50%;
-            background-color: white;
-            object-fit: contain;
-            border: 1px solid #ccc; /* Light gray border around logo */
-            margin-bottom: 4px;
-            flex-shrink: 0;
-        }
-        .name { 
-            font-weight: 700; 
-            font-size: 11px; 
-            text-align: center;
-            margin-bottom: 8px;
-            flex-shrink: 0;
-        }
-        /* Vertical QR Section */
-        .qrs-container {
-            display: flex;
-            flex-direction: column; 
-            gap: 6px; 
-            width: 100%;
-            align-items: center;
-        }
-        .qr-box {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            flex-shrink: 0; 
-        }
-        .qr-code-wrapper {
-            background: white; 
-            padding: 2px;
-            flex-shrink: 0;
-        }
-        .qr-label {
-            font-size: 7.5px;
-            font-weight: bold;
-            text-align: center;
-            text-transform: uppercase;
-            margin-top: 2px;
-        }
-        /* Optimize for print */
-        @media print {
-            body { padding: 0; }
-            .grid { gap: 6px; }
-            .card { border: 1.5px dashed #000; }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RJ Mobile — Review & Social Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --blue: #3B82F6;
+      --blue-hover: #60A5FA;
+      --blue-light: #1a2744;
+      --blue-mid: #1e3060;
+      --surface: #0D1117;
+      --white: #161C27;
+      --border: #2A3347;
+      --muted: #6B7A99;
+      --text: #E8EDF5;
+      --text-soft: #9BAAC4;
+      --green: #34D399;
+    }
+    html { -webkit-font-smoothing: antialiased; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--surface);
+      background-image: radial-gradient(ellipse 90% 40% at 50% -5%, rgba(59,130,246,0.12) 0%, transparent 70%);
+      min-height: 100vh;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 52px 16px 64px;
+    }
+    
+    .header { display: flex; flex-direction: column; align-items: center; gap: 14px; margin-bottom: 36px; text-align: center; }
+    .brand  { display: flex; align-items: center; gap: 11px; margin-bottom: 8px; }
+    .logo {
+      width: 46px; height: 46px; background: transparent; border-radius: 13px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 16px rgba(59,130,246,0.4); overflow: hidden; flex-shrink: 0;
+    }
+    .logo img  { width: 100%; height: 100%; object-fit: contain; }
+    .brand-text { text-align: left; }
+    .brand-text .name { font-size: 22px; font-weight: 800; color: var(--text); letter-spacing: -0.6px; line-height: 1; }
+    .brand-text .tag  { font-size: 11px; font-weight: 600; color: var(--blue); letter-spacing: 0.08em; text-transform: uppercase; margin-top: 4px; }
+    
+    .headline { font-size: clamp(26px, 5vw, 32px); font-weight: 800; color: var(--text); letter-spacing: -0.8px; line-height: 1.15; }
+    .headline em { font-style: normal; color: var(--blue); }
+    .subline { font-size: 14.5px; color: var(--text-soft); line-height: 1.65; max-width: 380px; }
+    
+    .content-wrapper {
+      display: flex; flex-direction: column; gap: 24px;
+      width: 100%; max-width: 520px;
+    }
+
+    .card {
+      background: var(--white); border-radius: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.3), 0 8px 32px rgba(0,0,0,0.4);
+      width: 100%; overflow: hidden;
+    }
+
+    /* --- REVIEW SECTION STYLES --- */
+    .branches-wrap {
+      padding: 24px 28px; border-bottom: 1px solid var(--border);
+      display: flex; flex-direction: column; gap: 12px;
+    }
+    .section-title { font-size: 12px; font-weight: 600; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 4px; text-align: center; }
+    
+    .branch-action-btn {
+      font-family: 'Inter', sans-serif; font-size: 15px; font-weight: 600;
+      color: var(--text); background: var(--blue-light); border: 1.5px solid rgba(59,130,246,0.2);
+      border-radius: 14px; padding: 14px 20px; width: 100%; cursor: pointer;
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      transition: all 0.15s ease;
+    }
+    .branch-action-btn:hover { background: var(--blue-mid); border-color: rgba(59,130,246,0.5); transform: translateY(-1px); }
+    .branch-action-btn:active { transform: scale(0.98); }
+    .branch-action-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .branch-action-btn.success { background: rgba(5,150,105,0.15); border-color: rgba(5,150,105,0.4); color: var(--green); }
+    
+    .branch-info { display: flex; align-items: center; gap: 14px; }
+    .branch-icon {
+      width: 34px; height: 34px; border-radius: 10px;
+      background: rgba(59,130,246,0.15); display: flex; align-items: center; justify-content: center; color: var(--blue);
+      flex-shrink: 0;
+    }
+    
+    .disclaimer {
+      font-size: 11.5px; color: var(--text-soft); text-align: center;
+      line-height: 1.5; display: flex; align-items: flex-start;
+      justify-content: center; gap: 6px; padding: 18px 28px; border-bottom: 1px solid var(--border);
+    }
+    .disclaimer svg { flex-shrink: 0; margin-top: 1.5px; opacity: 0.8; }
+    .output-section { padding: 24px 28px; min-height: 160px; display: flex; flex-direction: column; gap: 18px; }
+    .empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; color: var(--muted); padding: 16px 0 8px; }
+    .empty-state svg { opacity: 0.35; }
+    .empty-state p { font-size: 13.5px; text-align: center; max-width: 240px; line-height: 1.6; }
+    
+    .review-box {
+      background: var(--blue-light); border: 1.5px solid rgba(59,130,246,0.14);
+      border-radius: 16px; padding: 20px 22px; position: relative; display: none;
+    }
+    .review-box.visible { display: block; }
+    .review-box::before { content: '\201C'; position: absolute; top: -12px; left: 14px; font-size: 68px; font-weight: 800; color: rgba(59,130,246,0.2); line-height: 1; font-family: Georgia, serif; pointer-events: none; }
+    #review-text { font-size: 15px; font-weight: 400; font-style: italic; color: var(--text); line-height: 1.78; position: relative; z-index: 1; }
+    
+    .status-row { display: none; gap: 8px; flex-wrap: wrap; }
+    .status-row.visible { display: flex; }
+    .pill {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 12px; font-weight: 600; padding: 5px 11px; border-radius: 100px;
+      transition: all 0.2s;
+    }
+    .pill.pending  { background: rgba(107,122,153,0.15); color: var(--muted); }
+    .pill.done     { background: rgba(52,211,153,0.12); color: var(--green); border: 1px solid rgba(52,211,153,0.25); }
+    .pill.loading  { background: rgba(59,130,246,0.12); color: var(--blue-hover); border: 1px solid rgba(59,130,246,0.2); }
+    
+    /* --- SOCIAL SECTION STYLES --- */
+    .social-card { padding: 24px 28px; }
+    .socials-wrap { display: flex; flex-direction: column; gap: 14px; }
+    
+    .social-action-btn {
+      font-family: 'Inter', sans-serif;
+      background: var(--blue-light); border: 1.5px solid rgba(59,130,246,0.15);
+      border-radius: 16px; padding: 18px 20px; width: 100%; cursor: pointer;
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .social-action-btn:hover { background: var(--blue-mid); border-color: rgba(59,130,246,0.4); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.2); }
+    .social-action-btn:active { transform: scale(0.98); }
+    .social-action-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    
+    .social-info { display: flex; align-items: center; gap: 16px; }
+    .social-icon {
+      width: 42px; height: 42px; border-radius: 12px;
+      background: rgba(59,130,246,0.12); display: flex; align-items: center; justify-content: center; color: var(--blue);
+      flex-shrink: 0; transition: background 0.2s, color 0.2s;
+    }
+    
+    .social-action-btn:hover .icon-instagram { background: rgba(225, 48, 108, 0.15); color: #E1306C; }
+    .social-action-btn:hover .icon-youtube { background: rgba(255, 0, 0, 0.15); color: #FF0000; }
+    .social-action-btn:hover .icon-facebook { background: rgba(24, 119, 242, 0.15); color: #1877F2; }
+    .social-action-btn:hover .icon-snapchat { background: rgba(255, 252, 0, 0.15); color: #FFFC00; }
+
+    .btn-text-group { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; }
+    .btn-title { font-size: 16px; font-weight: 600; color: var(--text); }
+    .btn-subtitle { font-size: 13px; color: var(--muted); font-weight: 500; letter-spacing: 0.1px; transition: color 0.2s; }
+    .social-action-btn:hover .btn-subtitle { color: var(--text-soft); }
+
+    .action-icon { color: var(--muted); transition: color 0.15s; }
+    .branch-action-btn:hover .action-icon, .social-action-btn:hover .action-icon { color: var(--blue-hover); }
+
+    /* --- GLOBALS --- */
+    #toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(16px); background: #3B82F6; color: #fff; font-family: 'Inter', sans-serif; font-size: 13.5px; font-weight: 500; padding: 12px 24px; border-radius: 100px; opacity: 0; pointer-events: none; transition: opacity 0.22s ease, transform 0.22s ease; white-space: nowrap; z-index: 999; box-shadow: 0 4px 20px rgba(59,130,246,0.4); }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    
+    .footer { margin-top: 32px; font-size: 13px; color: var(--muted); text-align: center; line-height: 1.7; font-weight: 500; }
+
+    @media (max-width: 480px) {
+      body { padding: 32px 12px 52px; }
+      .branches-wrap, .disclaimer, .output-section, .social-card { padding-left: 18px; padding-right: 18px; }
+      .social-action-btn { padding: 16px; }
+    }
+  </style>
 </head>
 <body>
-    <div class="grid" id="qr-grid"></div>
 
-    <script>
-        const staffNames = [];
-        for (let i = 1; i <= 30; i++) {
-            staffNames.push("Name " + i);
-        }
+  <header class="header">
+    <div class="brand">
+      <div class="logo"><img src="logo.png" alt="RJ Mobile" onerror="this.style.display='none'" /></div>
+      <div class="brand-text">
+        <div class="name">RJ Mobile</div>
+        <div class="tag">Review & Social Hub</div>
+      </div>
+    </div>
+    <h1 class="headline">Connect & <em>Review</em></h1>
+    <p class="subline">Tap a branch below to leave a review, or connect with us on social media.</p>
+  </header>
 
-        const socialUrl = "https://rjmobile-in.github.io/social?staff=";
-        const murlipuraUrl = "https://rjmobile-in.github.io/murlipura?staff=";
+  <div class="content-wrapper">
+    
+    <!-- REVIEW CARD -->
+    <div class="card">
+      <div class="branches-wrap">
+        <div class="section-title">Leave us a review</div>
         
-        // Ensure your logo file is named logo.png and is in the same folder
-        const logoUrl = "logo.png";
+        <button class="branch-action-btn" onclick="doEverything(this, 'Murlipura, 1 Number', 'https://search.google.com/local/writereview?placeid=ChIJPy_2gv6zbTkRNkLjdwMftK4', true, 'si', 24)">
+          <div class="branch-info">
+            <div class="branch-icon"><svg width="18" height="18" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="9" r="3" stroke="currentColor" stroke-width="1.7"/><path d="M10 2C6.686 2 4 4.686 4 8c0 4.418 6 10 6 10s6-5.582 6-10c0-3.314-2.686-6-6-6z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></div>
+            <span class="btn-text">Murlipura, 1 Number</span>
+          </div>
+          <svg class="action-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
 
-        const grid = document.getElementById("qr-grid");
+        <button class="branch-action-btn" onclick="doEverything(this, 'VKI, 17 Number', 'https://search.google.com/local/writereview?placeid=ChIJa4dK3aGzbTkRA5PDLbAdtxU', true, '17i', 44)">
+          <div class="branch-info">
+            <div class="branch-icon"><svg width="18" height="18" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="9" r="3" stroke="currentColor" stroke-width="1.7"/><path d="M10 2C6.686 2 4 4.686 4 8c0 4.418 6 10 6 10s6-5.582 6-10c0-3.314-2.686-6-6-6z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></div>
+            <span class="btn-text">VKI, 17 Number</span>
+          </div>
+          <svg class="action-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
 
-        staffNames.forEach(name => {
-            const card = document.createElement("div");
-            card.className = "card";
+        <button class="branch-action-btn" onclick="doEverything(this, 'Shastri Nagar', 'https://search.google.com/local/writereview?placeid=ChIJPy_2gv6zbTkRNkLjdwMftK4', true, 'si', 24)">
+          <div class="branch-info">
+            <div class="branch-icon"><svg width="18" height="18" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="9" r="3" stroke="currentColor" stroke-width="1.7"/><path d="M10 2C6.686 2 4 4.686 4 8c0 4.418 6 10 6 10s6-5.582 6-10c0-3.314-2.686-6-6-6z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></div>
+            <span class="btn-text">Shastri Nagar</span>
+          </div>
+          <svg class="action-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
 
-            const logo = document.createElement("img");
-            logo.className = "logo";
-            logo.src = logoUrl;
-            
-            const nameLabel = document.createElement("div");
-            nameLabel.className = "name";
-            nameLabel.innerText = name;
-            
-            card.appendChild(logo);
-            card.appendChild(nameLabel);
+        <button class="branch-action-btn" onclick="doEverything(this, 'VKI, Lohamandi', 'https://search.google.com/local/writereview?placeid=ChIJ7wWKoB-zbTkRuoxnfdku9EQ', true, 'li', 36)">
+          <div class="branch-info">
+            <div class="branch-icon"><svg width="18" height="18" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="9" r="3" stroke="currentColor" stroke-width="1.7"/><path d="M10 2C6.686 2 4 4.686 4 8c0 4.418 6 10 6 10s6-5.582 6-10c0-3.314-2.686-6-6-6z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></div>
+            <span class="btn-text">VKI, Lohamandi</span>
+          </div>
+          <svg class="action-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+        
+        <button class="branch-action-btn" onclick="doEverything(this, 'Murlipura, 6 Number', 'https://search.google.com/local/writereview?placeid=ChIJx_8QWWizbTkRlvE7ym_Hy7w', true, '6i', 27)">
+          <div class="branch-info">
+            <div class="branch-icon"><svg width="18" height="18" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="9" r="3" stroke="currentColor" stroke-width="1.7"/><path d="M10 2C6.686 2 4 4.686 4 8c0 4.418 6 10 6 10s6-5.582 6-10c0-3.314-2.686-6-6-6z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></div>
+            <span class="btn-text">Murlipura, 6 Number</span>
+          </div>
+          <svg class="action-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
 
-            const qrsContainer = document.createElement("div");
-            qrsContainer.className = "qrs-container";
+      <div class="disclaimer">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+        <span><strong>Note:</strong> Please tap "Allow" if your browser asks for permission to download photos or open the review page.</span>
+      </div>
 
-            // --- QR 1: Social Media ---
-            const qrBoxSocial = document.createElement("div");
-            qrBoxSocial.className = "qr-box";
-            
-            const qrWrapSocial = document.createElement("div");
-            qrWrapSocial.className = "qr-code-wrapper";
-            
-            const labelSocial = document.createElement("div");
-            labelSocial.className = "qr-label";
-            labelSocial.innerText = "Social Media";
+      <div class="output-section">
+        <div class="empty-state" id="empty-state">
+          <svg width="48" height="48" viewBox="0 0 48 48" fill="none"><rect x="6" y="8" width="36" height="32" rx="6" stroke="#94A3B8" stroke-width="2"/><path d="M13 18h22M13 24h16M13 30h10" stroke="#94A3B8" stroke-width="2" stroke-linecap="round"/></svg>
+          <p>Tap a branch above — everything happens in one click.</p>
+        </div>
+        <div class="review-box" id="review-box"><p id="review-text"></p></div>
+        <div class="status-row" id="status-row" aria-live="polite">
+          <span class="pill" id="pill-copy"><svg width="11" height="11" viewBox="0 0 14 14" fill="none"><rect x="4" y="1" width="8" height="10" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M4 3.5H2.5A1.5 1.5 0 0 0 1 5v6.5A1.5 1.5 0 0 0 2.5 13h6A1.5 1.5 0 0 0 10 11.5V10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Review copied</span>
+          <span class="pill" id="pill-imgs" style="display: none;"><svg width="11" height="11" viewBox="0 0 14 14" fill="none"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/><circle cx="4.5" cy="4.5" r="1" fill="currentColor"/><path d="M1 9.5l3-3 2.5 2.5 2-2 3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> <span id="img-status-text">Photos downloading</span></span>
+          <span class="pill" id="pill-link"><svg width="11" height="11" viewBox="0 0 14 14" fill="none"><path d="M7.5 2h4.5v4.5M12 2l-6 6M6 3H2.5A1.5 1.5 0 0 0 1 4.5v7A1.5 1.5 0 0 0 2.5 13h7A1.5 1.5 0 0 0 11 11.5V8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg> Page opened</span>
+        </div>
+      </div>
+    </div>
 
-            qrBoxSocial.appendChild(qrWrapSocial);
-            qrBoxSocial.appendChild(labelSocial);
-            qrsContainer.appendChild(qrBoxSocial);
+    <!-- SOCIAL CARD -->
+    <div class="card social-card">
+      <div class="section-title">Follow Us</div>
+      <div class="socials-wrap">
+        
+        <button class="social-action-btn" data-platform="Instagram" data-url="https://instagram.com/rjmobile.in">
+          <div class="social-info">
+            <div class="social-icon icon-instagram"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg></div>
+            <div class="btn-text-group"><span class="btn-title">Instagram</span><span class="btn-subtitle">instagram.com/rjmobile.in</span></div>
+          </div>
+          <svg class="action-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+        </button>
 
-            // --- QR 2: Google Review (Murlipura) ---
-            const qrBoxGoogle = document.createElement("div");
-            qrBoxGoogle.className = "qr-box";
-            
-            const qrWrapGoogle = document.createElement("div");
-            qrWrapGoogle.className = "qr-code-wrapper";
-            
-            const labelGoogle = document.createElement("div");
-            labelGoogle.className = "qr-label";
-            labelGoogle.innerText = "Google Review";
+        <button class="social-action-btn" data-platform="YouTube" data-url="https://youtube.com/@rjmobileindia">
+          <div class="social-info">
+            <div class="social-icon icon-youtube"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22.54 6.42a2.78 2.78 0 0 0-1.94-2C18.88 4 12 4 12 4s-6.88 0-8.6.46a2.78 2.78 0 0 0-1.94 2A29 29 0 0 0 1 11.75a29 29 0 0 0 .46 5.33 2.78 2.78 0 0 0 1.94 2c1.72.46 8.6.46 8.6.46s6.88 0 8.6-.46a2.78 2.78 0 0 0 1.94-2 29 29 0 0 0 .46-5.33 29 29 0 0 0-.46-5.33z"></path><polygon points="9.75 15.02 15.5 11.75 9.75 8.48 9.75 15.02"></polygon></svg></div>
+            <div class="btn-text-group"><span class="btn-title">YouTube</span><span class="btn-subtitle">youtube.com/@rjmobileindia</span></div>
+          </div>
+          <svg class="action-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+        </button>
 
-            qrBoxGoogle.appendChild(qrWrapGoogle);
-            qrBoxGoogle.appendChild(labelGoogle);
-            qrsContainer.appendChild(qrBoxGoogle);
+        <button class="social-action-btn" data-platform="Facebook" data-url="https://facebook.com/rjmobile.in">
+          <div class="social-info">
+            <div class="social-icon icon-facebook"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3.81l.39-4h-4.2V7a1 1 0 0 1 1-1h3z"></path></svg></div>
+            <div class="btn-text-group"><span class="btn-title">Facebook</span><span class="btn-subtitle">facebook.com/rjmobile.in</span></div>
+          </div>
+          <svg class="action-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+        </button>
 
-            card.appendChild(qrsContainer);
-            grid.appendChild(card);
+        <button class="social-action-btn" data-platform="Snapchat" data-url="https://snapchat.com/add/rjmobileindia">
+          <div class="social-info">
+            <div class="social-icon icon-snapchat"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11.99 2.15c-2.43.07-4.14 1.63-4.52 3.96-.13.78.29 1.54 1.05 1.83.65.25 1.26.15 1.7-.27.32-.3.72-.51 1.17-.55.45-.04.9.1 1.26.38.33.26.56.65.59 1.1.03.54-.25 1.04-.73 1.32-.65.37-1.43.43-2.14.15-.65-.25-1.36-.18-1.92.21-.56.4-1.02 1.03-1.19 1.73-.24.97-.04 1.97.55 2.67.59.7 1.45.99 2.31.76.66-.17 1.34-.14 1.98.1.61.23 1.14.63 1.51 1.15.37-.52.9-1.03 1.51-1.15.64-.24 1.32-.27 1.98-.1.86.23 1.72-.06 2.31-.76.59-.7.79-1.7.55-2.67-.17-.7-.63-1.33-1.19-1.73-.56-.39-1.27-.46-1.92-.21-.71.28-1.49.22-2.14-.15-.48-.28-.76-.78-.73-1.32.03-.45.26-.84.59-1.1.36-.28.81-.42 1.26-.38.45.04.85.25 1.17.55.44.42 1.05.52 1.7.27.76-.29 1.18-1.05 1.05-1.83-.38-2.33-2.09-3.89-4.52-3.96z"></path></svg></div>
+            <div class="btn-text-group"><span class="btn-title">Snapchat</span><span class="btn-subtitle">snapchat.com/add/rjmobileindia</span></div>
+          </div>
+          <svg class="action-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+        </button>
 
-            // Generate QR Code: Social
-            new QRCode(qrWrapSocial, {
-                text: socialUrl + encodeURIComponent(name),
-                width: 40,  // Compact size for white background
-                height: 40, 
-                colorDark : "#000000",
-                colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.L
-            });
+      </div>
+    </div>
+  </div>
 
-            // Generate QR Code: Google Review (Murlipura)
-            new QRCode(qrWrapGoogle, {
-                text: murlipuraUrl + encodeURIComponent(name),
-                width: 40, // Compact size for white background
-                height: 40, 
-                colorDark : "#000000",
-                colorLight : "#ffffff",
-                correctLevel : QRCode.CorrectLevel.L
-            });
-        });
-    </script>
+  <p class="footer">Feel free to personalise the review before posting · ⭐⭐⭐⭐⭐<br>Stay Connected With RJ Mobile · 📱</p>
+  <div id="toast" aria-live="polite"></div>
+
+  <!-- FIREBASE INTEGRATION & LOGIC SCRIPT -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBsAsMlKJqoyOS27IVotwszVvO1ZFCGABs",
+      authDomain: "staff-review-935f3.firebaseapp.com",
+      projectId: "staff-review-935f3",
+      storageBucket: "staff-review-935f3.firebasestorage.app",
+      messagingSenderId: "91819642184",
+      appId: "1:91819642184:web:9b78814e6efcfb811a608d",
+      measurementId: "G-CVH4RRXS41"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const staffName = urlParams.get('staff') || 'Direct/Unknown';
+
+    // --- TRACKING LOGIC ---
+    window.trackReviewClick = async function(branchName) {
+      const storageKey = 'review_tapped_' + branchName.replace(/[^a-zA-Z0-9]/g, '_');
+      if (localStorage.getItem(storageKey)) return; 
+      try {
+        await addDoc(collection(db, "reviews"), { staff_name: staffName, branch: branchName, created_at: serverTimestamp() });
+        localStorage.setItem(storageKey, 'true');
+      } catch (err) { console.error("Database connection failed: ", err); }
+    }
+
+    window.trackSocialClick = async function(platformName) {
+      const storageKey = 'social_tapped_' + platformName.toLowerCase();
+      if (localStorage.getItem(storageKey)) return; 
+      try {
+        await addDoc(collection(db, "social_clicks"), { staff_name: staffName, platform: platformName, created_at: serverTimestamp() });
+        localStorage.setItem(storageKey, 'true');
+      } catch (err) { console.error("Firebase logging failed:", err); }
+    }
+
+    // --- REVIEW GENERATOR LOGIC ---
+    const emojis = ['🔥','📱','😍','👍','🙌','⭐','😊','💯','🎁'];
+    const marwariHinglish = ["ghana chokho kaam hai sa", "ekdam jor ko dukan hai", "bhaiya ji ro swabhav bhalo hai", "ghani khamma rj mobile ne", "ekdam chokho lagyo", "paisa vasool sa", "jor ko phone dilayo", "tabiyat hari ho gyi", "chokho setup hai", "bhaiya raam raam sa", "ghana footra phone h", "sach me jor ko h", "chokho swabhav h", "ek number sa", "bhalo kaam h"];
+    const marwariHi = ["घणा चोखा काम है सा", "एकदम जोर को दुकान है", "भैया जी रो स्वभाव भलो है", "घणी खम्मा आरजे मोबाइल ने", "एकदम चोखो लाग्यो", "पैसा वसूल सा", "जोर को फोन दिलायो", "तबीयत हरी हो गयी", "चोखो सेटअप है", "भैया राम राम सा", "घणा फूटरा फोन है", "सच में जोर को है", "चोखो स्वभाव है", "एक नंबर सा", "भलो काम है"];
+
+    const reviewsData = {
+      en: {
+        introsNormal: ["rj mobile is fab","awsm showroom setup","super premium vibe inside","loved the store display","totally luxurious store","great ambiance and clean","my fav tech store","showroom look is beautiful","such a clean setup","really nice mobile store","amazing vibe inside","best showroom interior","looks super premium","very clean and neat","top class mobile store","great lighting and display","feels like a luxury store","nice interior setup","superb store layout","beautiful mobile shop","the store is huge","very modern shop","neat and clean store","really awsm interior","love the store vibe","perfect display setup","luxurious shopping feel","great store environment","well organized showroom","premium look and feel","fantastic store design","very welcoming vibe","good looking store","impressed by the showroom","cleanest store ever","amazing tech shop","really cool store layout","loved the ambiance","super fine interior","best mobile shop display","huge range of phones","very well maintained","great place for gadgets","showroom is outstanding","premium vibes everywhere","nice clean mobile store","perfect tech showroom","beautifully decorated shop","very spacious store","top tier mobile store"],
+        introsLoc: ["best mobile shop in {loc}","visited this shop in {loc} today","{loc} has this awsm tech store","loved this store in {loc}","finest phone shop near {loc}","the best premium store in {loc}","my go-to mobile shop in {loc}","great shopping experience at {loc}","found the best deals in {loc}","{loc}'s top mobile showroom","superb tech shop in {loc}","amazing store located in {loc}","best electronics shop in {loc}","love buying phones in {loc}","great local store in {loc}","{loc} area has this gem","best smartphone shop in {loc}","top mobile dealer in {loc}","must visit shop in {loc}","{loc}'s finest tech store","premium showroom in {loc}","highly rated shop in {loc}","best customer service in {loc}","my favorite tech hub in {loc}","great find in {loc}","top class shop at {loc}","the neatest store in {loc}","beautiful mobile gallery in {loc}","awsm local business in {loc}","glad to have this in {loc}","the ultimate mobile shop in {loc}","{loc}'s coolest tech showroom","perfect place to buy phones in {loc}","number one shop in {loc}","best showroom layout in {loc}","great tech spot in {loc}","unbeatable shop in {loc}","luxury shopping in {loc}","best tech gallery near {loc}","coolest tech place in {loc}","impressive store in {loc}","best gadget shop around {loc}","the best in the {loc} market","leading mobile shop in {loc}","excellent showroom in {loc}","my trusted shop in {loc}","best place for mobiles in {loc}","the top tech outlet in {loc}","fabulous store near {loc}","premier tech destination in {loc}"],
+        middles: ["staff is super polite","the guys are very helpful","u get best customer service","team is knowledgeable and friendly","loved how polite the bhaiya was","they helped me transfer all data","really gentle and patient staff","good behavior from everyone","they treat u really well","guided me properly","staff didn't rush me at all","super humble salespeople","they know their tech well","excellent staff behavior","very supportive team","customer care is on point","great sales team","they answered all my questions","staff makes u feel comfortable","very professional team","the manager was very helpful","amazing hospitality","staff is incredibly sweet","great support from the team","they setup everything for me","super friendly guys","staff respects customers","polite and soft spoken staff","really nice sales executives","great technical knowledge","staff took their time with me","they don't pressure u to buy","excellent customer dealing","very transparent staff","team is always smiling","they handled my queries well","outstanding staff service","staff is very attentive","they truly care about customers","brilliant service by staff","staff behavior is 10/10","they go out of their way","very courteous employees","staff is well trained","they make shopping easy","highly polite nature","the team is very proactive","friendly and cooperative staff","best sales guys ever","staff is extremely humble"],
+        pricing: ["u get the best deals here","prices are awsm compared to online","exchange value was great","got a heavy discount without asking","EMI was quick and easy","best price guaranteed fr","they beat all local prices","super affordable deals","total value for money","no hidden charges straight up","they gave me a crazy discount","pricing is super genuine","best exchange rate fr","finance options are smooth","really cheap prices","rates are very reasonable","got a better price than amazon","best emi plans available","they offer great card discounts","saved a lot of money here","best value for my old phone","pricing is totally transparent","got a sweet deal today","they match online prices","very budget friendly shop","great festival offers","they gave me the lowest price","fair pricing always","best finance schemes","awesome cashback offers","prices are unbeatable","got the max exchange bonus","the discount was huge","really honest pricing","best rates in the market","they don't overcharge at all","very competitive pricing","great combo offers","excellent financing available","easy zero cost emi","best monetary value","they respect your budget","unmatched deals on phones","awesome festive discounts","got a great bargain","cheapest rates in town","they offer true value","excellent deal on my upgrade","best pricing policy","fantastic discount given"],
+        endings: ["thx for the free gifts","got a free cover and glass","they gave premium earbuds free","surprised with the free smartwatch","generous with free accessories","walked out with lots of freebies","the bonus gifts made my day","awesome complimentary gifts","free goodies were top notch","they don't hesitate to give free items","loved the surprise gifts","got branded gifts for free","they packed so many extra goodies","free items were highly useful","generous gifting fr","got a beautiful free gift","they gave free temp glass","free back cover included","awesome gift hamper given","they handed me free earphones","thx for the extra accessories","freebies are actually good quality","they surprised me at checkout","got a free neckband","best free gifts ever","they always give something extra","free accessories are premium","loved the free smart watch","got a massive gift combo","they never disappoint with gifts","free gifts are very useful","they gave awesome freebies","got complimentary premium glass","free gifts made it worth it","they showered me with gifts","free tech accessories given","got a free speaker with phone","thank u for the cute gifts","the freebies are totally branded","they gave me free airpods","lovely surprise free gifts","got extra free items","free gifts were high tier","they are so generous","free gifts are actually amazing","got a free charger adapter","bonus gifts were awesome","they really treat you well","freebies added so much value","best surprise gifts"],
+        bonuses: ["10/10 recommend","definitely going back","u must visit them","fab experience overall","highly recommended","best place for gadgets","leaving a very happy customer","superb shopping experience","totally worth it","my go-to shop now","will bring my friends here","amazing store","100% satisfied","couldn't ask for better","just perfect","will recommend to everyone","best shop period","a flawless experience","very happy with my purchase","my favorite tech store","absolutely amazing","will buy my next phone here too","a must visit shop","completely satisfied","the best retail experience","super happy right now","highly impressed","top notch store","would give 6 stars if I could","best decision to buy here","very delightful visit","keep up the good work","kudos to the team","totally loving it","best buying experience","very pleased with them","a wonderful shop","exceeded my expectations","simply the best","nothing beats this store","pure perfection","great job guys","will send my family here","my new permanent mobile shop","brilliant store","outstanding overall","a very satisfied buyer","will definitely return","pure 5 star service","everything was perfect"]
+      },
+      hinglish: {
+        introsNormal: ["bhaiya ki dukan ek number h","showroom kya mast saja rakha h","andar se ekdam premium feel h","display aur lighting zordar h","badiya aur badi dukan h","rj mobile visit karke maza aa gya","yaha ka collection sabse best h","ekdam vip wali feeling aati h","dukan bahut hi shandar h","kya mast store h bhai","interior ghana chokho h","dukan ka look ekdam kach h","andar ghuste hi maza aagya","bahut hi saaf suthri dukan h","lighting setup bawal h","ekdam modern showroom h","bahut badiya dukan h inki","dekhte hi dil khush ho gya","premium mobile shop h","setup bahut hi badiya kr rakha h","dukan bahut badi h","ekdam jhakkas showroom","yaha ki vibe mast h","collection bahut saara h","rj mobile sabse top h","ekdam premium feeling","showroom kafi spacious h","dukan ki safai ek number h","bhai ki dukan lajawab h","display bahut clear h","ekdam luxury store wali feel","store setup bahut pyara h","yaha aake acha laga","dukan ki sajavat mast h","best multi brand store h","phone lene ki best dukan","ekdam fresh look h dukan ka","bhaiya ka showroom top class h","dukan nahi pura mall lagta h","bahut pyara showroom h","ekdam naya aur clean store","showroom ki beauty awesome h","mast interior design h","yaha ka mahol acha h","kafi shanti h dukan me","rj mobile is the best","dukan ka look bawal h","ekdam jor ko showroom","sabse badiya setup h yaha","kafi premium store h"],
+        introsLoc: ["{loc} ki top mobile shop","{loc} me best dukan h","agar {loc} me phone lena h to best h","{loc} ki sabse badiya dukan","{loc} me inka showroom ek number h","{loc} area me sabse sasta aur acha","{loc} ki sabse premium dukan","{loc} me aisi dukan nahi milegi","{loc} walo ke liye best jagah h","{loc} me sabse mast collection yahi h","{loc} ka sabse bada showroom","{loc} me phone ki sabse achi shop","best tech store in {loc}","{loc} me dukan kya mast h","{loc} ki shaan h ye dukan","{loc} me phone lene ka ek hi adda","{loc} ki no 1 dukan","{loc} me sabse trusted dukan","{loc} walo ka fav store","{loc} me sabse famous mobile shop","{loc} me inka jalwa h","{loc} ki premium shop","{loc} me sabse badiya service","{loc} ka top mobile showroom","{loc} me aur koi aisi dukan ni","{loc} me mera fav store","{loc} me ekdam vip dukan","{loc} walo ke liye best deal","{loc} ki no 1 mobile gallery","{loc} me apna bhai ki dukan","{loc} ka sabse acha phone dealer","{loc} me sbse sasta showroom","{loc} area ki best place","{loc} me sabse stylish dukan","{loc} me new phone k liye best","{loc} walo ki pehli pasand","{loc} me sabse acha setup","{loc} me best customer support","{loc} me reliable mobile shop","{loc} me hamesha yahi jata hu","{loc} ka king h ye store","{loc} me no 1 electronics shop","{loc} me mera fixed adda","{loc} ki sabse khubsurat dukan","{loc} ki luxury mobile shop","{loc} me inka naam h","{loc} me aake maza aagya","{loc} walo k liye vardaan h","{loc} me best showroom vibe","{loc} ka sabse mast phone store"],
+        middles: ["staff nature bahut badiya hai","customer service ekdam zordar h","bhaiya ne sab aaram se samjhaya","koi jaldbazi nahi karte","staff bahut cooperative h","data transfer sab kar diya","behavior itna acha tha ki maza aa gya","saare phones ki badiya knowledge h","grahak ko bhagwan mante h","sab log friendly the","staff ko sab pata h","bhaiya log bahut ache h","nature bahut pyara h sabka","customer ko respect dete h","sab aaram se dikhate h","sales team bahut expert h","gusse me baat ni krte","staff bahut shant h","bhaiya ne pura time diya","har sawal ka jawab diya","customer handling 10/10 h","staff hamesha smile krta h","koi attitude ni h staff me","bhaiya ne badhiya guide kiya","pura data copy kr diya aaram se","staff ki service super fast h","ekdam ghar jaisa mahol h","bhaiya logon ka behaviour 1 number h","unhone mera budget samjha","bahut hi sweet staff h","team bahut professional h","staff ki knowledge top level ki h","customer se bahut pyaar se milte h","bhaiya ne sahi advice di","salesmen kafi humble h","staff ne bilkul pareshan ni kiya","ekdam shanti se deal krte h","customer satisfy krke bhejte h","bhaiya ji ne bohot help ki","staff ka response bahut quick h","service me koi kami nahi","bahut hi polite nature k log h","sab bahut helpful the yaha","team kafi supportive h","bhaiya ne cover lagake diya","staff ko phone ki deep knowledge h","sach me badiya log h","customer ki care krte h","bhaiya ne bilkul sahi phone bataya","sabne bahut ijjat se baat ki"],
+        pricing: ["rate market se saste h bhai","online se sasta pad gya","exchange rate bahut shandar lagaya","emi aasan aur fast h","bina bole hi badhiya discount de diya","paison ke mamle me best shop h","budget me mast phone dila diya","deals hamesha zordar hoti h","rate bilkul fix aur down rehte h","pure vasool ho gye paise","discount deke dil jeet liya","online se ache price h","purane phone ke paise ache diye","sahi daam lagate h hamesha","rate ekdam genuine h","finance jaldi ho gya","amazon se sasta diya","diwali offer jaisa discount tha","price match kr liya online se","koi hidden charge ni liya","card pe mast discount mila","rate ekdam reasonable h","deal krne me maza aagya","best emi plans available the","saste me premium phone mil gya","paisa bach gya yaha aake","exchange bonus kafi badiya diya","cashback bhi mila alag se","yaha aake fayda hi fayda h","best price in jaipur bhai","unhone bilkul bhi overcharge ni kiya","bhaiya ne discount me kami ni ki","budget ki puri respect ki","sahi me best rate dete h","loota nahi in logo ne","price kafi competitive h","festive offer ka pura fayda diya","yaha aake paise barbad ni hote","zero downpayment me phone diya","sabse saste rate h inke","deal aisi di ki na ni bol paya","rate toote hue h ekdam","market me sabse sasta dealer","sabse achi kimat lagayi","emi ki process ekdam smooth thi","paise bacha liye in logo ne","koi faltu ka charge ni h","sahi price me badiya chij di","ek number deal di bhaiya ne","rate sun k dil khush ho gya"],
+        endings: ["free cover glass bhi diya","sath me mast free gifts mile","smart watch free di","gifts dene me kanjoosi ni krte","unexpected gift milne se din ban gya","premium earphones free diye","bina mange accessories de di","gifts ki quality ekdam top h","customer ko khush kr dete h","zabarjast free gifts mile","bhaiya ne mast gift diya","itne saare freebies mile maza aagya","gift ki quality branded h","bag bhar ke gift de diye","free items deke khush kr diya","ek mast sa neckband free diya","freebies k mamle me no 1 h","bhaiya ne bina mange gift de diye","sath me speaker bhi free mila","gift hamper kafi useful tha","free charger adapter de diya","itne badhiya gift kon deta h bhai","gifts dekh k tabiyat hari ho gyi","free temper laga k diya","bhaiya ne khush krke bheja","ek aur gift surprise de diya","premium back cover free diya","gift ka wada pura kiya","sab kch free me setup kr diya","bhaiya ne dil jeet liya gifts de k","gift k bina dukan se jane ni dete","sath me branded buds free mile","itna sab free dekh k hairan hu","free items ki koi kami nahi","free me premium glass lagaya","tohfe deke dil khush kr diya","unexpected gifts se din ban gya","freebies ne deal perfect bana di","gifts ka level ekdam high h","sabse badiya gift yahi milte h","customer ko gift dena inhe aata h","bag me surprise gift dal diye","free accessories ka dher laga diya","gifts k liye thank you bhaiya","bhaiya ji ne to mauj kardi gifts deke","free me airpods de diye bhai","gift deke khush krna inki aadat h","freebies are literally the best","sath me badiya gifts mil gye","free gift pack me maza aagya"],
+        bonuses: ["jarur visit kro","100% recommended h","meri taraf se 5 star","aage se hamesha yahi aunga","sab dosto ko yahi bhejunga","dil khush ho gya","ek number kaam h","best place to buy phone","puri tarah satisfied hu","is dukan ka koi mukabla ni","bhai log jarur jao","paisa vasul jagah h","ab se yahi mera adda h","gajab experience","maza aa gaya yaha aake","sabse badiya shop lagi mujhe","10 me se 10 number","sab yaha se phone lena","bhai log zaroor visit krna","meri to fav shop ban gyi","koi shikayat ka mauka ni diya","fully satisfied customer","sabse chokho kaam h inka","bhaiya ki dukan top h","meri aur se green signal h","sbko yahi bhejunga m ab","very happy with them","ekdam jhakas experience","aaj ka din ban gya yaha jaake","kisi aur dukan pe jane ki jarurat ni","best store ever bhai","sab badiya tha yaha","ekdam jhakkas service","yaha aake kabhi nirash ni honge","total paisa vasool","dil se thanks rj mobile","sab badiya rha experience","meri puri family yahi aayegi","aap bhi ek baar zarur aana","hamesha yahi se shopping krunga","sab kuch ekdam perfect tha","bhaiya ji ko 5 star","best decision to buy from here","kudos to the team","ekdam faultless service","bahut shandar anubhav raha","apna kaam badiya se hua","love this shop yaar","will definitely visit again","best experience in town"]
+      },
+      hi: {
+        introsNormal: ["rj mobile bahut badhiya jagah hai","dukan ka interior kafi acha hai","yeh ek shandar mobile shop hai","showroom bahut hi aakarshak hai","store ki saaf safai bahut achi hai","yaha aakar bahut acha laga","yeh ekdum modern store hai","showroom ki lighting bahut premium hai","shopping ka anubhav khas raha","yaha acha collection mil jata hai","showroom ka setup bahut badiya hai","yeh ek luxury dukan jaisi hai","andar se bahut shandar dikhti hai","yaha ki sajavat bahut pyari hai","ekdum top class dukan hai","mahol kafi acha aur shant hai","dukan bahut badi aur sunder hai","yaha ki display kafi akarshak hai","mujhe inka store bahut pasand aaya","ekdum kach aur naya showroom hai","yaha ka interior dil jeet leta hai","bahut hi premium anubhav raha","dukan me aate hi acha lagta hai","yeh ek number mobile shop hai","har tarah ke phone yaha uplabdh hai","inka collection sabse behtarin hai","bahut saaf suthra showroom hai","yaha lighting bahut shandar hai","dukan ki vyavastha bahut achi hai","best mobile showroom laga mujhe","yeh ekdum vip dukan jaisi hai","yaha aakar tabiyat khush ho gayi","sab kuch bahut vyavasthit hai","yaha bheed bhad nahi hoti","shanti se phone dekhne ki best jagah","inka showroom kafi vishal hai","decoration bahut hi sunder hai","yaha ka mahaul ekdum alag hai","yeh dukan kafi akarshak hai","sabse acha mobile store hai yeh","display me sab phones clear dikhte hai","showroom ka look ekdum modern hai","dukan me kaafi space hai","mujhe inki dukan bahut achi lagi","ekdum professional setup hai","yaha luxury wali feeling aati hai","kisi bade mall ki dukan jaisa hai","yaha ki vibe bahut achi hai","ek shandar shopping ka adda","showroom ka look dilchasp hai"],
+        introsLoc: ["{loc} me yeh ek shandar shop hai","{loc} me rj mobile bahut badhiya hai","{loc} ki sabse achi dukan hai yeh","agar {loc} me phone lena ho toh best hai","{loc} me inka showroom kafi acha hai","{loc} area me aisi dukan nahi hai","{loc} walo ke liye sabse sahi jagah","{loc} me sabse saste phone yahi milte hain","{loc} me premium collection yahin hai","{loc} ka sabse acha mobile store","{loc} ki sabse badi mobile shop","{loc} me inka kaam ek number hai","{loc} me sabse bharosemand dukan","{loc} walo ki pehli pasand hai","{loc} me mera sabse pasandida store","{loc} me aakar yaha phone jarur dekhe","{loc} me aisi luxury shop nahi dekhi","{loc} ka top mobile dealer","{loc} ki shaan hai yeh showroom","{loc} me kharidari ka best option","{loc} me inki dukan sabse alag hai","{loc} me ek behtarin tech store","{loc} ki number 1 mobile gallery","{loc} me aakar maza aa gaya","{loc} me customer ki sabse pasandida jagah","{loc} me nayi dukan jaisi chamak hai","{loc} ka king hai yeh mobile store","{loc} me best service milti hai yaha","{loc} ki sabse saaf suthri dukan","{loc} me hamesha yahi se phone leta hu","{loc} me yeh jagah kisi vardan se kam nahi","{loc} me sabse zada variety yahi hai","{loc} ka sabse vishal showroom","{loc} me inka koi mukabla nahi","{loc} me best mobile showroom yahi hai","{loc} area ki sabse sunder dukan","{loc} me ab aur kahi jaane ki jarurat nahi","{loc} walo ke liye yeh best deal hai","{loc} me apna manpasand store","{loc} ki premium mobile shop yahi hai","{loc} me gajab ka store hai","{loc} ka best gadget center","{loc} ki sabse badiya smartphone shop","{loc} me meri ekmatra pasand","{loc} ki no 1 tech gallery","{loc} me phone kharidne ka sahi thekana","{loc} me mera fixed adda yahi hai","{loc} me badhiya anubhav ke liye best","{loc} walo ki pehli chahat","{loc} me inka display sabse acha hai"],
+        middles: ["staff ka nature bahut acha hai","yaha sabhi bahut madadgar hain","grahak ki baat shanti se sunte hain","mujhe phone ke baare me sab samjhaya","staff ka tarika kafi professional hai","yaha grahako ka samman hota hai","mera purana data transfer kar diya","unka swabhav bahut mitha hai","sahayta ke hamesha taiyar rehte hain","customer service sabse aage hai","staff ko achi jankari hai","bhaiya log kafi ache se baat karte hain","yaha apnapan mehsoos hota hai","grahak ko time dete hain","sab log milansar hain","bina jaldbazi ke phone dikhate hain","staff ki jankari kafi achi hai","unhone sahi phone chunne me madad ki","koi bhi sawal pucho, shanti se batate hain","customer handling bahut badhiya hai","yaha ke karmchari kafi anubhavi hain","unka bartaav mujhe bahut pasand aaya","staff kafi tezi se kaam karta hai","unhone mera budget acche se samjha","staff ka response bahut jaldi aata hai","grahako ko bhagwan mante hain","unhone bina kisi pareshani ke data copy kiya","staff ne kafi sahyog kiya","unhone sach bol kar phone becha","staff ke chehre par hamesha muskan rehti hai","yeh log zabardasti kuch nahi bechte","unka vyavhar kafi naram aur acha hai","sales team ko bahut achi knowledge hai","mujhe sahi salah dekar phone dila diya","yaha aakar kafi acha mahsoos hua","karmchari bahut hi imandar hain","unhone bina gusse ke meri baat suni","staff ne mere sabhi doubts clear kiye","unka baat karne ka tarika kafi sabhya hai","bhaiya ne cover aur glass lagakar diya","customer ki suvidha ka pura dhyan rakhte hain","yaha koi attitude nahi dikhata","staff ne bahut dhairya se kaam liya","mujhe bahut ijjat aur samman mila","bhaiya ka margdarshan bahut acha tha","staff hamesha madad ke liye aage rehta hai","service bahut hi fast aur achi thi","unhone mera naya phone poora set kar diya","sabhi log kafi friendly the","karmchariyo ne kafi achi sewa di"],
+        pricing: ["kimat kafi sahi mili","online se bhi sasta rate mila","purane phone ki achi kimat di","emi ki suvidha aasan hai","achi chhut mil gayi","paison ke mamle me imandar log hain","budget ke hisab se phone dila diya","bina molbhav ke sahi daam laga diya","koi hidden charge nahi tha","paisa vasool ho gaya yaha","discount bahut acha diya gaya","rate market se kam hi rehte hain","exchange me acha fayda hua","sahi daam me badhiya chij mili","finance jaldi ho gaya","amazon se sasta phone yaha mila","tyohar ke offer me kafi fayda hua","unki billing prakriya kafi parakdarshi hai","best emi plans available the","zero downpayment par phone mil gaya","credit card par bhari chhut mili","yeh log market me sabse sasta dete hain","unhone sach me sabse achi kimat lagayi","mujhe kafi bachat hui yaha aakar","bhaiya ne price match karke diya","yaha par kisi bhi tarah ki loot nahi hoti","rate kafi muqable wale hain","mujhe zabardast deal mili","mera budget bilkul nahi bigda","cashback offer ka pura labh mila","unhone behtarin discount dekar dil jeet liya","exchange bonus ne deal badhiya bana di","paisa poori tarah wasool ho gaya","yaha ki kimat aur service ka koi tod nahi","sabse saste daam me phone yahi milte hain","sahi kimat aur achi service ka combination","finance option kafi smooth aur tezz tha","unhone price me kafi riyayat di","yeh shop value for money hai","koi faltu ka tax ya charge nahi liya","mere purane phone ki sabse jyada value lagayi","unhone kafi acha combo offer diya","rate dekh kar mujhe khushi hui","yaha ke daam ekdum fix aur sahi hote hain","mujhe kafi reasonable price mila","festive sale ka mujhe bahut फायदा हुआ","saste me ek behtarin phone dila diya","unhone bilkul bhi adhik paise nahi maange","mujhe laga main online se sasta laya","paise bachane ke liye yeh best jagah hai"],
+        endings: ["sath me free cover bhi mila","billing ke waqt ache gift diye","smartwatch muft me mil gayi","free accessories de kar khush kar diya","inhe gift dene me khushi hoti hai","muft uphar pakar acha laga","earphones bhi free me diye","gift bahut hi kam ke hain","ekdum branded gift diye","customer ko khush karke bhejte hain","bina mange hi gift de diye","muft saman kafi achi quality ka tha","bag bhar kar free gift mile","upar se extra accessories mil gayi","tohfe dekar dil jeet liya","ek acha sa neckband muft me diya","unhone tempered glass free me laga diya","premium gifts dekh kar maza aa gaya","muft uphar ne mera din bana diya","bhaiya ne jate jate ek aur gift diya","yaha se phone lene par gift tay hai","free speaker milne se main kafi khush hu","unhone gifts me kanjusi nahi ki","gifts bilkul branded aur original the","unhone ek shandar gift hamper diya","mujhe bahut saare surprise gifts mile","free charger adapter muft diya gaya","in hone apni taraf se kafi saare uphaar diye","mujhe kafi upyogi free items mile","unke uphaar kafi behtarin hote hain","customer delight ka pura dhyan rakhte hain","free ear-buds milne se deal aur achi ho gayi","itne saare gifts pakar hairani hui","in hone wada kiya aur gifts diye","bina soche in hone extra gifts de diye","muft cover aur glass kafi ache standard ke the","uphaar dekar in hone mujhe sthayi grahak bana liya","freebies ke mamle me inka koi muqabla nahi","shandar gifts ke liye unka dhanyawad","mujhe kafi pyare uphaar mile","in hone kafi mehnge uphaar muft me diye","bag me chupke se extra gift daal diye","muft accessories kafi kaam ki hain","yeh hamesha kuch na kuch extra dete hain","gifts ne deals ko perfect bana diya","unhone jate jate badiya muskan ke sath gift diye","yaha ki gifting policy kafi achi hai","unhone ek acha sa back cover muft me diya","muft uphar se kafi ache paise bach gaye","mujhe aaj kafi behtarin free gifts mile"],
+        bonuses: ["sabko jana chahiye yaha","meri taraf se puri anumati hai","100% santusht hu","yahin se phone kharidna chahiye","main hamesha yahi aunga","dosto ko bhi bataunga","mera anubhav bahut acha raha","best mobile dukan hai","dil se dhanyawad","10/10 number dunga","paisa vasool anubhav","aage se yahi aunga","sabse behtarin dukan","sabse achi service","maza aa gaya yaha aakar","ekdum perfect shopping anubhav","meri taraf se 5 star","yaha aakar mujhe kafi acha laga","yeh meri pasandida dukan ban gayi hai","kisi aur jagah jaane ki jarurat nahi","yaha sab kuch kafi shandar tha","main inki sewa se puri tarah khush hu","sab ko yahi aane ki salah dunga","bahut hi gajab ka anubhav raha","yeh jagah kabhi nirash nahi karti","mera din ban gaya yaha aakar","sabse achi dukan ka khitab inhe dunga","mujhe yaha aakar bahut khushi hui","yeh log sach me kafi acha kaam kar rahe hain","bhaiya ko mera tahe dil se shukriya","yaha aakar aapko achi deal hi milegi","yeh ek bharosemand mobile shop hai","mera agla phone bhi yahi se aayega","paisa puri tarah wasool ho gaya yaha","kisi bhi brand ka phone lene ke liye best","mera anubhav yaha shandar raha","sab kuch ummeed se behtar tha","ek satisfied grahak ban kar jaa raha hu","inko 5 star milne chahiye","is dukan jaisi sewa kahi aur nahi","apne parivar ko bhi yahi bhejunga","yaha aane ka faisla bilkul sahi tha","ek gajab ki dukan jaha sab acha milta hai","yaha ki sewa 1 number hai","main aage bhi yahi shopping karunga","bahut hi sakaratmak anubhav raha","meri sabhi aashaye poori hui yaha","koi shikayat ka mauka nahi mila","ekdum shandar aur bejod sewa","yaha aakar phone lena sabse acha faisla tha"]
+      }
+    };
+
+    function humanize(txt) {
+      if(Math.random() < 0.4) txt = txt.charAt(0).toLowerCase() + txt.slice(1);
+      return txt;
+    }
+
+    function pickReview(branchName) {
+      let r = Math.random();
+      let lang = r < 0.60 ? 'hinglish' : (r < 0.80 ? 'en' : 'hi');
+      let data = reviewsData[lang];
+      
+      let intro;
+      if(Math.random() < 0.4) {
+        const branchArea = branchName.split(',')[0].trim();
+        const dynamicLocs = [branchArea, "Jaipur"];
+        let l = dynamicLocs[Math.floor(Math.random()*dynamicLocs.length)];
+        intro = data.introsLoc[Math.floor(Math.random()*data.introsLoc.length)].replace(/\{loc\}/g, l);
+      } else {
+        intro = data.introsNormal[Math.floor(Math.random()*data.introsNormal.length)];
+      }
+
+      let m = data.middles[Math.floor(Math.random()*data.middles.length)];
+      let p = data.pricing[Math.floor(Math.random()*data.pricing.length)];
+      let e = data.endings[Math.floor(Math.random()*data.endings.length)];
+      let b = data.bonuses[Math.floor(Math.random()*data.bonuses.length)];
+
+      let parts = [m, p, e].sort(() => Math.random() - 0.5);
+      let body = [];
+      let len = Math.random();
+      
+      if(len < 0.25) {} 
+      else if(len < 0.60) { body.push(parts[0]); } 
+      else { body = parts.slice(0, Math.random() < 0.5 ? 2 : 3); }
+
+      let finalArr = [intro, ...body, b];
+      
+      if ((lang === 'hinglish' || lang === 'hi') && Math.random() < 0.15) {
+        const mArr = lang === 'hinglish' ? marwariHinglish : marwariHi;
+        const mPhrase = mArr[Math.floor(Math.random() * mArr.length)];
+        finalArr.splice(finalArr.length - 1, 0, mPhrase); 
+      }
+      
+      let reviewText = finalArr.map(humanize).join(" ");
+      
+      if(Math.random() < 0.40) {
+        let emojiCount = Math.floor(Math.random() * 3) + 1;
+        let emStr = "";
+        for(let i=0; i<emojiCount; i++) {
+          emStr += emojis[Math.floor(Math.random()*emojis.length)];
+        }
+        reviewText += " " + emStr;
+      }
+      
+      return reviewText;
+    }
+
+    function getRandomImages(total, count, prefix) {
+      const arr = Array.from({ length: total }, (_, i) => `${prefix}${i + 1}.jpg`);
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr.slice(0, count);
+    }
+
+    function setPill(id, state) {
+      const el = document.getElementById(id);
+      el.className = 'pill ' + state;
+    }
+
+    let toastTimer;
+    function showToast(msg) {
+      const t = document.getElementById('toast');
+      t.textContent = msg; t.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+    window.doEverything = async function(btn, branchName, branchLink, downloadImages, imgPrefix = 'i', imgTotal = 71) {
+      const allBtns = document.querySelectorAll('.branch-action-btn, .social-action-btn');
+      allBtns.forEach(b => b.disabled = true);
+
+      const textSpan = btn.querySelector('.btn-text');
+      const originalText = textSpan.textContent;
+      textSpan.textContent = 'Working...';
+
+      await window.trackReviewClick(branchName);
+
+      const text = pickReview(branchName);
+      document.getElementById('empty-state').style.display = 'none';
+      const box = document.getElementById('review-box');
+      box.classList.add('visible');
+      document.getElementById('review-text').textContent = text;
+
+      document.getElementById('status-row').classList.add('visible');
+      setPill('pill-copy',  'loading');
+      setPill('pill-link',  'pending');
+      
+      let countToDownload = 0;
+      const imgPill = document.getElementById('pill-imgs');
+      if(downloadImages) {
+        countToDownload = Math.floor(Math.random() * 3) + 1; 
+        document.getElementById('img-status-text').textContent = `${countToDownload} photo${countToDownload > 1 ? 's' : ''} downloading`;
+        imgPill.style.display = 'inline-flex';
+        setPill('pill-imgs',  'pending');
+      } else {
+        imgPill.style.display = 'none';
+      }
+
+      let copied = false;
+      try {
+        await navigator.clipboard.writeText(text);
+        copied = true;
+      } catch (e) {
+        try {
+          const ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.cssText = 'position:fixed;top:-9999px;left:-9999px;opacity:0;';
+          document.body.appendChild(ta);
+          ta.focus(); ta.select();
+          copied = document.execCommand('copy');
+          document.body.removeChild(ta);
+        } catch (e2) { copied = false; }
+      }
+      setPill('pill-copy', copied ? 'done' : 'pending');
+
+      if (downloadImages) {
+        setPill('pill-imgs', 'loading');
+        const imagesToDownloadList = getRandomImages(imgTotal, countToDownload, imgPrefix);
+        for (let i = 0; i < imagesToDownloadList.length; i++) {
+          const a = document.createElement('a');
+          a.href = imagesToDownloadList[i];
+          a.download = imagesToDownloadList[i];
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          await wait(500); 
+        }
+        setPill('pill-imgs', 'done');
+        await wait(500);
+      } else {
+        await wait(300);
+      }
+
+      setPill('pill-link', 'loading');
+      window.open(branchLink, '_blank', 'noopener,noreferrer');
+      setPill('pill-link', 'done');
+
+      btn.classList.add('success');
+      textSpan.textContent = '✓ Done!';
+      showToast(copied ? 'Review copied — paste it on the page!' : 'Review shown — copy it manually');
+
+      setTimeout(() => {
+        btn.classList.remove('success');
+        textSpan.textContent = originalText;
+        allBtns.forEach(b => b.disabled = false);
+        setTimeout(() => { document.getElementById('status-row').classList.remove('visible'); }, 1500);
+      }, 4000);
+    }
+
+    // --- SOCIAL HUB CLICK LOGIC ---
+    function handleSocialClick(btn, platform, url) {
+      const allBtns = document.querySelectorAll('.branch-action-btn, .social-action-btn');
+      allBtns.forEach(b => b.disabled = true);
+
+      const titleEl = btn.querySelector('.btn-title');
+      const originalText = titleEl.textContent;
+      
+      titleEl.textContent = 'Opening...';
+      btn.style.borderColor = 'rgba(59,130,246,0.6)';
+      btn.style.background = 'var(--blue-mid)';
+      
+      showToast('Opening ' + platform + '...');
+      window.trackSocialClick(platform);
+      
+      setTimeout(() => {
+        window.open(url, '_blank', 'noopener,noreferrer');
+        setTimeout(() => {
+          titleEl.textContent = originalText;
+          btn.style.borderColor = '';
+          btn.style.background = '';
+          allBtns.forEach(b => b.disabled = false);
+        }, 800);
+      }, 500);
+    }
+
+    document.querySelectorAll('.social-action-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const platform = btn.getAttribute('data-platform');
+        const url = btn.getAttribute('data-url');
+        handleSocialClick(btn, platform, url);
+      });
+    });
+  </script>
 </body>
 </html>
