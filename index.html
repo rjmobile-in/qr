@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Compact White Staff ID QR Stickers</title>
+    <!-- QR Code Generator -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- HTML2Canvas for PNG Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         /* Setup page for A4 Print */
         @page {
@@ -21,28 +24,45 @@
         /* Print Controls (Hidden when printing or saving to PDF) */
         .no-print {
             text-align: center;
-            padding: 20px;
+            padding: 24px;
             background: #ffffff;
             border-bottom: 1px solid #cbd5e1;
             margin-bottom: 20px;
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
         }
-        .print-btn {
+        .btn-group {
+            display: flex;
+            gap: 16px;
+        }
+        .action-btn {
             padding: 12px 24px;
             font-size: 16px;
             font-weight: 600;
-            background: #3B82F6;
             color: #ffffff;
             border: none;
             border-radius: 6px;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: background 0.2s, opacity 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        .print-btn:hover { background: #2563EB; }
+        .action-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+        .pdf-btn { background: #3B82F6; }
+        .pdf-btn:hover { background: #2563EB; }
+        .png-btn { background: #10B981; }
+        .png-btn:hover { background: #059669; }
+        
         .print-note {
-            font-size: 12px;
+            font-size: 13px;
             color: #64748b;
-            margin-top: 8px;
         }
 
         /* Container simulating A4 page on screen */
@@ -81,14 +101,14 @@
         
         .name { 
             font-weight: 800; 
-            font-size: 17px; /* Increased to make it larger and more readable */
+            font-size: 17px; 
             line-height: 1.15;
             text-align: center;
-            margin-bottom: 6px; /* Slightly reduced so the QR has more room */
+            margin-bottom: 6px; 
             flex-shrink: 0;
             letter-spacing: -0.3px;
             width: 100%;
-            overflow-wrap: break-word; /* Ensures long names like 'Krishna Choubey' fit */
+            overflow-wrap: break-word; 
         }
         
         /* QR Section */
@@ -113,8 +133,6 @@
             align-items: center;
         }
         
-        /* HIGH QUALITY PRINT HACK:
-           Scaled up from 90px to 120px to perfectly fill the width of the box */
         .qr-code-wrapper img, .qr-code-wrapper canvas {
             width: 120px !important;
             height: 120px !important;
@@ -140,19 +158,28 @@
 </head>
 <body>
 
-    <!-- Controls to trigger the save to PDF -->
+    <!-- Controls to trigger the save to PDF or PNG -->
     <div class="no-print">
-        <button class="print-btn" onclick="window.print()">Save as PDF</button>
-        <div class="print-note">When the dialog opens, select <strong>"Save as PDF"</strong> as your destination.</div>
+        <div class="btn-group">
+            <button class="action-btn pdf-btn" onclick="window.print()">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                Save as PDF
+            </button>
+            <button class="action-btn png-btn" id="png-btn" onclick="saveAsPNG()">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                Save as PNG Image
+            </button>
+        </div>
+        <div class="print-note">To save as PDF, select <strong>"Save as PDF"</strong> as your destination in the print dialog.</div>
     </div>
 
     <!-- The actual print content -->
-    <div class="page-container">
+    <div class="page-container" id="printable-area">
         <div class="grid" id="qr-grid"></div>
     </div>
 
     <script>
-        // Formatted with proper Title Case per your list
+        // Formatted with proper Title Case
         const staffNames = [
             "Aman", "Harsh Kejriwal", "Kamal Murarka", "Rajesh", "Ronak",
             "Manish Daga", "Ayush", "Farhan", "Girish", "Harsh Dubay",
@@ -164,7 +191,6 @@
         ];
 
         const socialUrl = "https://rjmobile-in.github.io/social?staff=";
-
         const grid = document.getElementById("qr-grid");
 
         staffNames.forEach(name => {
@@ -173,7 +199,7 @@
             
             const nameLabel = document.createElement("div");
             nameLabel.className = "name";
-            nameLabel.innerText = name; // Display name with spaces intact
+            nameLabel.innerText = name; 
             
             card.appendChild(nameLabel);
 
@@ -195,8 +221,7 @@
             // Replace spaces with hyphens ONLY for the URL string
             const linkName = name.replace(/\s+/g, '-');
 
-            // Generate extremely high-resolution QR Code for crisp PDF saving
-            // Kept 400x400 internally for ultra-sharp print density
+            // Generate extremely high-resolution QR Code
             new QRCode(qrWrapSocial, {
                 text: socialUrl + encodeURIComponent(linkName),
                 width: 400,  
@@ -206,6 +231,41 @@
                 correctLevel : QRCode.CorrectLevel.H 
             });
         });
+
+        // Function to capture the page-container and save it as a high-quality PNG
+        function saveAsPNG() {
+            const btn = document.getElementById('png-btn');
+            const targetElement = document.getElementById('printable-area');
+            const originalContent = btn.innerHTML;
+            
+            // Show loading state
+            btn.innerHTML = '<svg class="animate-spin" width="20" height="20" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Generating...';
+            btn.disabled = true;
+
+            // Wait a tiny bit to allow UI to update before freezing main thread with html2canvas
+            setTimeout(() => {
+                html2canvas(targetElement, {
+                    scale: 3, // 3x resolution for high quality printing
+                    backgroundColor: "#ffffff",
+                    useCORS: true
+                }).then(canvas => {
+                    // Create an anchor element and trigger download
+                    const link = document.createElement('a');
+                    link.download = 'Staff_QR_Stickers.png';
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                    
+                    // Restore button state
+                    btn.innerHTML = originalContent;
+                    btn.disabled = false;
+                }).catch(err => {
+                    console.error("Error generating PNG:", err);
+                    alert("There was an error generating the PNG.");
+                    btn.innerHTML = originalContent;
+                    btn.disabled = false;
+                });
+            }, 100);
+        }
     </script>
 </body>
 </html>
